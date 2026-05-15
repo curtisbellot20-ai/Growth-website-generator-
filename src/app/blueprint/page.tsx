@@ -9,13 +9,20 @@ import ConversionReport from '@/components/blueprint/ConversionReport';
 import AcquisitionReport from '@/components/blueprint/AcquisitionReport';
 import PageStructureView from '@/components/blueprint/PageStructureView';
 import StrategicIntelligenceReport from '@/components/blueprint/StrategicIntelligenceReport';
+import PricingCompetitorReport from '@/components/blueprint/PricingCompetitorReport';
+import AdsScriptsReport from '@/components/blueprint/AdsScriptsReport';
+import EmailABReport from '@/components/blueprint/EmailABReport';
+import AnalyticsReputationReport from '@/components/blueprint/AnalyticsReputationReport';
+import BrandJourneyReport from '@/components/blueprint/BrandJourneyReport';
+import SecurityTechnicalReport from '@/components/blueprint/SecurityTechnicalReport';
 import { TabList, useTabs } from '@/components/ui/Tabs';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { useBlueprintStore } from '@/lib/store/blueprint-store';
 import {
   BarChart2, Search, Palette, Target, Users, Layout, Brain,
-  ArrowLeft, Sparkles, Calendar,
+  ArrowLeft, Sparkles, Calendar, DollarSign, Globe, Megaphone,
+  Mail, BarChart3, Star, Lock,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils/format';
 import Link from 'next/link';
@@ -28,13 +35,20 @@ const TABS = [
   { id: 'conversion', label: 'Conversion', icon: <Target className="w-4 h-4" /> },
   { id: 'acquisition', label: 'Growth', icon: <Users className="w-4 h-4" /> },
   { id: 'pages', label: 'Pages', icon: <Layout className="w-4 h-4" /> },
+  { id: 'pricing', label: 'Pricing', icon: <DollarSign className="w-4 h-4" /> },
+  { id: 'competition', label: 'Competition', icon: <Globe className="w-4 h-4" /> },
+  { id: 'ads-scripts', label: 'Ads & Scripts', icon: <Megaphone className="w-4 h-4" /> },
+  { id: 'email-testing', label: 'Email & Testing', icon: <Mail className="w-4 h-4" /> },
+  { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="w-4 h-4" /> },
+  { id: 'brand-journey', label: 'Brand & Journey', icon: <Star className="w-4 h-4" /> },
+  { id: 'security-tech', label: 'Security & Tech', icon: <Lock className="w-4 h-4" /> },
 ];
 
 function BlueprintContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get('id');
-  const { generation, getProject } = useBlueprintStore();
+  const { generation, getProject, extendedData } = useBlueprintStore();
   const { activeTab, onTabChange } = useTabs('scores');
 
   const blueprint = id ? getProject(id) : generation.blueprint;
@@ -131,6 +145,92 @@ function BlueprintContent() {
               pageStructure={blueprint.pageStructure}
               contentStrategy={blueprint.contentStrategy}
             />
+          )}
+
+          {/* Extended Modules — require extendedData from second parallel API call */}
+          {activeTab === 'pricing' && (
+            extendedData?.pricingStrategy && extendedData?.competitorIntelligence ? (
+              <PricingCompetitorReport
+                pricing={extendedData.pricingStrategy}
+                competitor={extendedData.competitorIntelligence}
+              />
+            ) : (
+              <div className="flex items-center justify-center min-h-48 text-zinc-500 text-sm">
+                Pricing data not available. Generate a new blueprint to include extended modules.
+              </div>
+            )
+          )}
+          {activeTab === 'competition' && (
+            extendedData?.pricingStrategy && extendedData?.competitorIntelligence ? (
+              <PricingCompetitorReport
+                pricing={extendedData.pricingStrategy}
+                competitor={extendedData.competitorIntelligence}
+              />
+            ) : (
+              <div className="flex items-center justify-center min-h-48 text-zinc-500 text-sm">
+                Competitor intelligence not available.
+              </div>
+            )
+          )}
+          {activeTab === 'ads-scripts' && (
+            extendedData?.googleAdsBlueprint && extendedData?.salesScriptSystem ? (
+              <AdsScriptsReport
+                ads={extendedData.googleAdsBlueprint}
+                scripts={extendedData.salesScriptSystem}
+              />
+            ) : (
+              <div className="flex items-center justify-center min-h-48 text-zinc-500 text-sm">
+                Ads & scripts data not available.
+              </div>
+            )
+          )}
+          {activeTab === 'email-testing' && (
+            extendedData?.emailMarketingArchitecture && extendedData?.abTestingRoadmap ? (
+              <EmailABReport
+                email={extendedData.emailMarketingArchitecture}
+                abTesting={extendedData.abTestingRoadmap}
+              />
+            ) : (
+              <div className="flex items-center justify-center min-h-48 text-zinc-500 text-sm">
+                Email & testing data not available.
+              </div>
+            )
+          )}
+          {activeTab === 'analytics' && (
+            extendedData?.analyticsSetup && extendedData?.reputationManagement ? (
+              <AnalyticsReputationReport
+                analytics={extendedData.analyticsSetup}
+                reputation={extendedData.reputationManagement}
+              />
+            ) : (
+              <div className="flex items-center justify-center min-h-48 text-zinc-500 text-sm">
+                Analytics data not available.
+              </div>
+            )
+          )}
+          {activeTab === 'brand-journey' && (
+            extendedData?.brandVoiceGuide && extendedData?.customerJourneyMap ? (
+              <BrandJourneyReport
+                brandVoice={extendedData.brandVoiceGuide}
+                journeyMap={extendedData.customerJourneyMap}
+              />
+            ) : (
+              <div className="flex items-center justify-center min-h-48 text-zinc-500 text-sm">
+                Brand & journey data not available.
+              </div>
+            )
+          )}
+          {activeTab === 'security-tech' && (
+            extendedData?.securityLegalModule && extendedData?.technicalSEOChecklist ? (
+              <SecurityTechnicalReport
+                security={extendedData.securityLegalModule}
+                technical={extendedData.technicalSEOChecklist}
+              />
+            ) : (
+              <div className="flex items-center justify-center min-h-48 text-zinc-500 text-sm">
+                Security & technical data not available.
+              </div>
+            )
           )}
         </div>
       </div>

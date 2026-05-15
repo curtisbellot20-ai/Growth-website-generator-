@@ -36,7 +36,7 @@ export default function GeneratorPage() {
   const [genStep, setGenStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  const { setBlueprint, saveProject } = useBlueprintStore();
+  const { setBlueprint, saveProject, setExtendedData } = useBlueprintStore();
 
   const {
     register,
@@ -82,22 +82,36 @@ export default function GeneratorPage() {
     }, 4000);
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      // Run both API calls in parallel for efficiency
+      const [coreRes, extendedRes] = await Promise.all([
+        fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }),
+        fetch('/api/generate-extended', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }),
+      ]);
 
-      if (!response.ok) {
-        const err = await response.json();
+      if (!coreRes.ok) {
+        const err = await coreRes.json();
         throw new Error(err.error || 'Generation failed');
       }
 
-      const blueprint = await response.json();
+      const blueprint = await coreRes.json();
       clearInterval(interval);
 
       setBlueprint(blueprint);
       saveProject(blueprint);
+
+      if (extendedRes.ok) {
+        const extended = await extendedRes.json();
+        setExtendedData(extended);
+      }
+
       router.push(`/blueprint?id=${blueprint.id}`);
     } catch (err) {
       clearInterval(interval);

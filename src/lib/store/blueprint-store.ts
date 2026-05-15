@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { WebsiteBlueprint, GenerationState, BusinessIntakeForm } from '@/lib/types';
+import type { ExtendedWebsiteBlueprint } from '@/lib/types/extended';
 
 interface BlueprintStore {
   // Current generation
@@ -11,6 +12,10 @@ interface BlueprintStore {
   setBlueprint: (blueprint: WebsiteBlueprint) => void;
   setGenerationError: (error: string) => void;
   resetGeneration: () => void;
+
+  // Extended module data (from second parallel API call)
+  extendedData: ExtendedWebsiteBlueprint | null;
+  setExtendedData: (data: ExtendedWebsiteBlueprint) => void;
 
   // Saved projects
   projects: WebsiteBlueprint[];
@@ -51,7 +56,10 @@ export const useBlueprintStore = create<BlueprintStore>()(
       setGenerationError: (error) =>
         set((s) => ({ generation: { ...s.generation, error, status: 'error' } })),
 
-      resetGeneration: () => set({ generation: initialGeneration }),
+      resetGeneration: () => set({ generation: initialGeneration, extendedData: null }),
+
+      extendedData: null,
+      setExtendedData: (data) => set({ extendedData: data }),
 
       projects: [],
 
